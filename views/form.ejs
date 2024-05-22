@@ -1,0 +1,32 @@
+
+<!--forms.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Complaint Submission</title>
+</head>
+<body>
+    <h2>Submit a Complaint</h2>
+    <form action="/submitComplaint" method="POST">
+        <input type="hidden" id="email" name="email" value="<%= email %>">
+        <label for="complaintType">Complaint Type:</label>
+        <select id="complaintType" name="complaintType">
+            <option value="road">road</option>
+            <option value="water">water</option>
+            <option value="dry">dryy</option>
+            <!-- Add more options as needed -->
+        </select><br><br>
+        <label for="name">Name:</label>
+        <input type="text" id="name" name="name" required><br><br>
+        <label for="aadharID">Aadhar ID:</label>
+        <input type="text" id="aadharID" name="aadharID" required><br><br>
+        <label for="phoneNumber">Phone Number:</label>
+        <input type="tel" id="phoneNumber" name="phoneNumber" required><br><br>
+        <label for="complaintMessage">Complaint Message:</label><br>
+        <textarea id="complaintMessage" name="complaintMessage" rows="4" required></textarea><br><br>
+        <button type="submit">Submit</button>
+    </form>
+</body>
+</html>

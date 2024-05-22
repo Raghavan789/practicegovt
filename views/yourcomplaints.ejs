@@ -1,0 +1,71 @@
+<!-- yourcomplaints.ejs -->
+
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Your Complaints</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+
+        .container {
+            max-width: 800px;
+            margin: 20px auto;
+            padding: 20px;
+            background-color: #fff;
+            border-radius: 8px;
+            box-shadow: 0 0 10px rgba(0, 0, 0, 0.1);
+        }
+
+        h1 {
+            color: #333;
+        }
+
+        ul {
+            list-style-type: none;
+            padding: 0;
+        }
+
+        li {
+            margin-bottom: 20px;
+            border-bottom: 1px solid #ccc;
+            padding: 10px 0;
+        }
+
+        li:last-child {
+            border-bottom: none;
+        }
+
+        strong {
+            color: #007bff;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <h1>Your Complaints</h1>
+        
+        <% if (complaints.length > 0) { %>
+            <ul>
+                <% complaints.forEach(i => { %>
+                    <li>
+                        <strong>Complaint Type:</strong> <%= i.complaintType %><br>
+                        <strong>Reference ID:</strong> <%= i.referenceID %><br>
+                        <strong>Description:</strong> <%= i.complaintMessage %><br>
+                        <strong>Status</strong> <%= i.status %><br>
+
+                    </li>
+                <% }); %>
+            </ul>
+        <% } else { %>
+            <p>No complaints found.</p>
+        <% } %>
+    </div>
+</body>
+</html>

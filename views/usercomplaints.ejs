@@ -1,0 +1,79 @@
+<!-- usercomplaints.ejs -->
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title> AProve Complaints</title>
+    <style>
+        body {
+            font-family: Arial, sans-serif;
+            background-color: #f4f4f4;
+            margin: 0;
+            padding: 0;
+        }
+        h1 {
+            text-align: center;
+            margin-top: 20px;
+            color: #333;
+        }
+        table {
+            width: 100%;
+            border-collapse: collapse;
+            margin-top: 20px;
+        }
+        th, td {
+            padding: 10px;
+            border: 1px solid #ddd;
+            text-align: left;
+        }
+        th {
+            background-color: #f2f2f2;
+        }
+        tr:nth-child(even) {
+            background-color: #f9f9f9;
+        }
+        tr:hover {
+            background-color: #ddd;
+        }
+    </style>
+</head>
+<body>
+    <h1>Complaints</h1>
+    <table>
+        <thead>
+            <tr>
+            
+                <th>Complaint Type</th>
+              
+                
+               
+                <th>Complaint Message</th>
+                <!-- <th>Reference ID</th> -->
+               
+                <th>ACTION</th>
+            </tr>
+        </thead>
+        <tbody>
+            <% complaints.forEach(complaint => { %>
+                <tr>
+                 
+                    <td><%= complaint.complaintType %></td>
+                   
+                    
+                  
+                    <td><%= complaint.complaintMessage %></td>
+                    <!-- <td><%= complaint.referenceID %></td> -->
+                    <td>
+                        <form action="http://localhost:3000/sc/<%= complaint.referenceID %>" method="get">
+                            <button type="submit">MARK AS SOLVED</button>
+                        </form>
+         </td>
+                   
+                   
+                </tr>
+            <% }); %>
+        </tbody>
+    </table>
+</body>
+</html>

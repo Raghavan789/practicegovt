@@ -13,7 +13,7 @@ const db = mysql.createConnection({
     host: 'localhost',
     user: 'root',
     password: '', // Replace with your MySQL password
-    database: 'govt'
+    database: 'practicegovt'
 });
 
 // Middleware
@@ -56,8 +56,11 @@ app.post('/login', (req, res) => {
             res.send('Invalid email or password');
         } else {
             const ac_id = result[0].ac_id;
+            //added update commented below line of code not worked
             req.session.email = email;
             req.session.ac_id = ac_id;
+            //printing ac_id in console
+            console.log(ac_id);
             res.redirect('/dashboard');
         }
     });
@@ -65,6 +68,7 @@ app.post('/login', (req, res) => {
 
 app.post('/register', (req, res) => {
     const { email, password } = req.body;
+
     const selectQuery = 'SELECT * FROM logins WHERE email = ?';
     const insertQuery = 'INSERT INTO logins (email, password) VALUES (?, ?)';
     db.query(selectQuery, [email], (err, result) => {
@@ -79,6 +83,8 @@ app.post('/register', (req, res) => {
                     throw err;
                 }
                 console.log('User registered successfully');
+                //addeed update to print ac_id in console
+         
                           
                 res.send(`Registration successful.${email}.`);
 
@@ -91,8 +97,8 @@ app.post('/register', (req, res) => {
 app.post('/submitComplaint', (req, res) => {
 
     const { complaintType, name, aadharID, phoneNumber, complaintMessage, email} = req.body;
-
-    const insertQuery = 'INSERT INTO complaints (complaintType, name, aadharID, phoneNumber, complaintMessage, email) VALUES (?, ?, ?, ?, ?, ?)';
+    // changed email to ac_id i had renamed email to ac_id and changed its column and datatype ALTER TABLE complaints CHANGE COLUMN email ac_id VARCHAR(255);
+    const insertQuery = 'INSERT INTO complaints (complaintType, name, aadharID, phoneNumber, complaintMessage, ac_id) VALUES (?, ?, ?, ?, ?, ?)';
     db.query(insertQuery, [complaintType, name, aadharID, phoneNumber, complaintMessage, email], (err, result) => {
         if (err) {
             throw err;
@@ -104,13 +110,16 @@ app.post('/submitComplaint', (req, res) => {
 
 // Route to render dashboard page
 app.get('/dashboard', (req, res) => {
-    const email = req.session.email; // Retrieve email from session
+    console.log(req.session.ac_id);
+    //commented down thw line
+   const email = req.session.email; // Retrieve email from session
     const ac_id = req.session.ac_id; //retrieve ac_id 
-    if (!email) {
+    if (!ac_id) {
         res.redirect('/'); // Redirect to login if session email is not set
     } else {
         // Render dashboard with email
-        res.render('dashboard', { email,ac_id });
+        res.render('dashboard', { email });
+
     }
 });
 
@@ -177,16 +186,43 @@ app.get('/adminpassword', (req, res) => {
 
 });
 
+// app.post('/adminpassword', (req, res) => {
+//     const { password } = req.body;
+
+//     try {
+//         if (password === correctPassword) {
+//             req.session.adminApproved = true;
+//             res.redirect('/admin');
+//         } else {
+//             res.status(401).send('Incorrect password');
+//         }
+//     } catch (error) {
+//         // Log the error for debugging purposes
+//         console.error('An error occurred:', error);
+//         // Send an appropriate response to the client
+//         res.status(500).send('Internal Server Error');
+//     }
+// });
+
+//new admin password 
 app.post('/adminpassword', (req, res) => {
     const { password } = req.body;
 
     try {
-        if (password === correctPassword) {
-            req.session.adminApproved = true;
-            res.redirect('/admin');
-        } else {
-            res.status(401).send('Incorrect password');
-        }
+        // Query the admin password from the database
+        db.query('SELECT admin_password FROM admin_credentials LIMIT 1', (err, results) => {
+            if (err) {
+                console.error('Database query error:', err);
+                return res.status(500).send('Internal Server Error');
+            }
+
+            if (results.length > 0 && password === results[0].admin_password) {
+                req.session.adminApproved = true;
+                res.redirect('/admin');
+            } else {
+                res.status(401).send('Incorrect password');
+            }
+        });
     } catch (error) {
         // Log the error for debugging purposes
         console.error('An error occurred:', error);

@@ -5,6 +5,26 @@ const mysql = require('mysql');
 const bodyParser = require('body-parser');
 const session = require('express-session');
 
+
+app.set('views', __dirname + '/views');
+
+
+app.use(bodyParser.json());
+app.use(express.static(path.join(__dirname, 'public')));
+app.use(fileUpload());
+ 
+// development only
+ 
+app.get('/up', routes.index);//call for main index page
+app.post('/up', routes.index);//call for signup post 
+app.get('/profile/:id',routes.profile);//to render users profile
+
+var routes = require('./routes')
+  , http = require('http')
+  , path = require('path'),
+	busboy = require("then-busboy"),
+	fileUpload = require('express-fileupload');
+
 const app = express();
 const port = 3000;
 
@@ -19,6 +39,8 @@ const db = mysql.createConnection({
 // Middleware
 app.set('view engine', 'ejs');
 app.set('views', './views');
+app.use(express.static('public'));
+
 app.use(bodyParser.urlencoded({ extended: true }));
 app.use(session({
     secret: 'your-secret-key',
@@ -44,7 +66,7 @@ app.get('/register', (req, res) => {
 });
 
 
-// Route to handle login form submission
+//Route to handle login form submission
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
     const selectQuery = 'SELECT * FROM logins WHERE email = ? AND password = ?';
@@ -65,6 +87,16 @@ app.post('/login', (req, res) => {
         }
     });
 });
+
+//these should be used befor the post and get request
+
+//photo upload 
+
+
+
+
+
+
 
 app.post('/register', (req, res) => {
     const { email, password } = req.body;
@@ -122,6 +154,8 @@ app.get('/dashboard', (req, res) => {
 
     }
 });
+
+//date and time display
 
     app.get('/form', (req, res) => {
         const email = req.session.email; // Retrieve email from session
@@ -375,3 +409,5 @@ app.get('/sc/:referenceID',authenticateadmin, (req, res) => {
         });
     });
 });
+
+// added code

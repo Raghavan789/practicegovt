@@ -1,19 +1,39 @@
-<!--dashboard.ejs-->
 <!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Dashboard</title>
+    <style>
+        #datetime {
+            font-size: 1.2em;
+            margin-top: 20px;
+        }
+    </style>
 </head>
 <body>
     <h2>WELCOME TO DASHBOARD</h2>
-    <p>Welcomne <%= email %>!</p>
+    <p>Welcome <%= email %>!</p>
     
+    <!-- Date and Time Display -->
+    <div id="datetime"></div>
+
     <!-- Other dashboard content-->
-    <p>Register complaint ?? <a href="/form">register here</a> </p>
-    <p>your complaints <a href="/uc">register here</a> </p>
+    <p>Register complaint?? <a href="/form">register here</a></p>
+    <p>Your complaints <a href="/uc">view here</a></p>
 
+    <script>
+        function updateDateTime() {
+            const now = new Date();
+            const dateTimeString = now.toLocaleString();
+            document.getElementById('datetime').textContent = dateTimeString;
+        }
 
+        // Update date and time every second
+        setInterval(updateDateTime, 1000);
+
+        // Initial call to display date and time immediately
+        updateDateTime();
+    </script>
 </body>
 </html>

@@ -31,7 +31,7 @@ exports.index = function(req, res){
                     var sql = "INSERT INTO `logins`(`first_name`,`last_name`,`mob_no`,`user_name`,'email', `password` ,`image`) VALUES ('" + fname + "','" + lname + "','" + mob + "','" + name + "','" + email + "','" + pass + "','" + img_name + "')";
 
                      var query = db.query(sql, function(err, result) {
-                   //      res.redirect('profile/'+result.insertId);
+                   //      res.redirect('profile/'+result.insertId);  
                      });
                  });
          } else {

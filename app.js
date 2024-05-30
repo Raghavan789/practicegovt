@@ -42,13 +42,75 @@ app.set('views', __dirname + '/views');
 
 global.db = db;
 
-
+// code to disply profile images not only profile pic 
+app.use('/public', express.static(path.join(__dirname, 'public')));
 // Routes
 const routes = require('./routes'); // Assuming routes are defined in a separate file
 
-app.get('/up', routes.index); // call for main index page
-app.post('/up', routes.index); // call for signup post
-app.get('/profile/:id', routes.profile); // to render user's profile
+// Routes
+// Routes
+app.get('/up', (req, res) => {
+    res.render('index.ejs', { message: '' });
+});
+
+app.post('/up', (req, res) => {
+    let message = '';
+    const post = req.body;
+    const name = post.user_name;
+    const pass = post.password;
+    const fname = post.first_name;
+    const lname = post.last_name;
+    const mob = post.mob_no;
+    const email = post.email;
+
+    if (!req.files)
+        return res.status(400).send('No files were uploaded.');
+
+    const file = req.files.uploaded_image;
+    const img_name = file.name;
+
+    if (file.mimetype == "image/jpeg" || file.mimetype == "image/png" || file.mimetype == "image/gif") {
+        file.mv('public/images/upload_images/' + file.name, function (err) {
+            if (err)
+                return res.status(500).send(err);
+            const sql = "INSERT INTO `logins`(`first_name`,`last_name`,`mob_no`,`user_name`,`email`, `password`, `image`) VALUES ('" + fname + "','" + lname + "','" + mob + "','" + name + "','" + email + "','" + pass + "','" + img_name + "')";
+            db.query(sql, function (err, result) {
+                if (err) {
+                    console.error(err);
+                    res.status(500).send(err);
+                } else {
+                    res.redirect('profile/' + result.insertId);
+                }
+            });
+        });
+    } else {
+        message = "This format is not allowed, please upload file with '.png', '.gif', '.jpg'";
+        res.render('index.ejs', { message: message });
+    }
+});
+
+app.get('/profile/:id', (req, res) => {
+    let message = '';
+    const id = req.params.id;
+    const sql = "SELECT * FROM `logins` WHERE `id`='" + id + "'";
+    db.query(sql, function (err, result) {
+        if (err) {
+            console.error(err);
+            message = "An error occurred while fetching profile.";
+            res.render('profile.ejs', { data: [], message: message });
+        } else {
+            if (result.length <= 0)
+                message = "Profile not found!";
+            res.render('profile.ejs', { data: result, message: message });
+        }
+    });
+});
+
+
+
+
+
+
 
 // Route to render login.ejs
 app.get('/', (req, res) => {
@@ -118,9 +180,15 @@ app.get('/dashboard', (req, res) => {
     if (!ac_id) {
         res.redirect('/'); // Redirect to login if session email is not set
     } else {
+       
+        
         res.render('dashboard', { email: req.session.email });
+
     }
 });
+
+
+
 
 // Route to render form page
 app.get('/form', (req, res) => {
@@ -129,6 +197,7 @@ app.get('/form', (req, res) => {
         res.redirect('/'); // Redirect to login if session email is not set
     } else {
         res.render('form', { email });
+
     }
 });
 
@@ -293,4 +362,36 @@ app.get('/sc/:referenceID', authenticateAdmin, (req, res) => {
 // Start the server
 app.listen(port, () => {
     console.log(`Server running on port ${port}`);
+});
+
+// Handle 404 errors
+app.use((req, res, next) => {
+    res.render('404.ejs');
+});
+
+app.get('/test', (req, res) => {
+    res.render('test.ejs');
+});
+
+app.get('/fp/:id', (req, res) => {
+    const id = req.params.id;
+    const sql = "SELECT * FROM logins WHERE id='" + id + "'";
+    db.query(sql, function (err, result) {
+        if (err) {
+            console.error(err);
+            // Handle the error, maybe send an error response
+            res.status(500).send("An error occurred while fetching profile.");
+        } else {
+            // Assuming result is an array containing fetched data
+            if (result.length > 0) {
+                // Store the fetched data in a session variable
+                req.session.profileData = result[0]; // Assuming you only need the first row
+                console.log("came upto fp");
+                res.status(200).send("Data imported and stored in session variable successfully.");
+            } else {
+                // Handle case where no data is found
+                res.status(404).send("No profile found for the provided ID.");
+            }
+        }
+    });
 });

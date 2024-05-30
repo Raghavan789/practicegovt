@@ -79,7 +79,7 @@ app.post('/up', (req, res) => {
                     console.error(err);
                     res.status(500).send(err);
                 } else {
-                    res.redirect('profile/' + result.insertId);
+                    res.redirect('/');
                 }
             });
         });
@@ -125,9 +125,29 @@ app.get('/', (req, res) => {
 });
 
 app.get('/register', (req, res) => {
-    res.render('register');
+    res.render('registration');
 });
+//new
 
+const fetchProfileData = (ac_id, req, res, callback) => {
+    const sql = "SELECT * FROM logins WHERE ac_id = ?";
+    db.query(sql, [ac_id], function (err, result) {
+        if (err) {
+            console.error(err);
+            return res.status(500).send("An error occurred while fetching profile.");
+        }
+        if (result.length > 0) {
+            req.session.profileData = result; // Store the entire result array in session
+            console.log(req.session.profileData);
+            callback(null, result);
+        } else {
+            callback("No profile found for the provided ID.");
+        }
+    });
+};
+
+
+//new login 
 // Route to handle login form submission
 app.post('/login', (req, res) => {
     const { email, password } = req.body;
@@ -142,11 +162,67 @@ app.post('/login', (req, res) => {
             const ac_id = result[0].ac_id;
             req.session.email = email;
             req.session.ac_id = ac_id;
-            res.send("login success");
-            //res.redirect('/dashboard');
+            
+            // Call fetchProfileData function
+            fetchProfileData(ac_id, req, res, (err, profileData) => {
+                if (err) {
+                    console.error(err);
+                    // Handle error appropriately, maybe redirect to an error page
+                } else {
+                    res.send("imoprt data success fu';;;");
+                    // Optionally, you can do something with the fetched profile data
+                    // For example, you can redirect the user to the dashboard
+                    // res.redirect('/dashboard');
+                }
+            });
         }
     });
-});
+}); 
+
+
+// Route to handle login form submission
+// app.post('/login', (req, res) => {
+//     const { email, password } = req.body;
+//     const selectQuery = 'SELECT * FROM logins WHERE email = ? AND password = ?';
+//     db.query(selectQuery, [email, password], (err, result) => {
+//         if (err) {
+//             throw err;
+//         }
+//         if (result.length === 0) {
+//             res.send('Invalid email or password');
+//         } else {
+//             const ac_id = result[0].ac_id;
+//             req.session.email = email;
+//             req.session.ac_id = ac_id;
+//             res.send("login success");
+//             //res.redirect('/dashboard');
+//         }
+//     });
+// });
+// //fp 
+
+// app.get('/fp', (req, res) => {
+//     console.log(req.session.ac_id);
+//     const sql = "SELECT * FROM logins WHERE ac_id = ?"; // Parameterized query to prevent SQL injection
+//     db.query(sql, [req.session.ac_id], function (err, result) {
+//         if (err) {
+//             console.error(err);
+
+//             res.status(500).send("An error occurred while fetching profile.");
+
+//         } else {
+//             if (result.length > 0) {
+//                 // Store the fetched data in a session variable
+//                 req.session.profileData = result; // Store the entire result array in session
+//                 console.log(req.session.profileData);
+//                 res.status(200).send("Data imported and stored in session variable successfully.");
+//             } else {
+//                 res.status(404).send("No profile found for the provided ID.");
+//             }
+//         }
+//     });
+// });
+
 
 // Route to handle registration form submission
 app.post('/register', (req, res) => {
@@ -164,7 +240,7 @@ app.post('/register', (req, res) => {
                 if (err) {
                     throw err;
                 }
-                res.send('Registration successful.');
+                res.redirect('Registration successful.');
             });
         }
     });
@@ -381,25 +457,4 @@ app.listen(port, () => {
 
 app.get('/test', (req, res) => {
     res.render('test.ejs');
-});
-app.get('/fp', (req, res) => {
-    console.log(req.session.ac_id);
-    const sql = "SELECT * FROM logins WHERE ac_id = ?"; // Parameterized query to prevent SQL injection
-    db.query(sql, [req.session.ac_id], function (err, result) {
-        if (err) {
-            console.error(err);
-
-            res.status(500).send("An error occurred while fetching profile.");
-
-        } else {
-            if (result.length > 0) {
-                // Store the fetched data in a session variable
-                req.session.profileData = result; // Store the entire result array in session
-                console.log(req.session.profileData);
-                res.status(200).send("Data imported and stored in session variable successfully.");
-            } else {
-                res.status(404).send("No profile found for the provided ID.");
-            }
-        }
-    });
 });

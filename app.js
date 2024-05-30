@@ -89,25 +89,32 @@ app.post('/up', (req, res) => {
     }
 });
 
-app.get('/profile/:id', (req, res) => {
+// app.get('/profile/:id', (req, res) => {
+//     let message = '';
+//     const id = req.params.id;
+//     const sql = "SELECT * FROM `logins` WHERE `id`='" + id + "'";
+//     db.query(sql, function (err, result) {
+//         if (err) {
+//             console.error(err);
+//             message = "An error occurred while fetching profile.";
+//             res.render('profile.ejs', { data: [], message: message });
+//         } else {
+//             if (result.length <= 0)
+//                 message = "Profile not found!";
+//             res.render('profile.ejs', { data: result, message: message });
+//         }
+//     });
+// });
+
+
+
+app.get('/profile', (req, res) => {
     let message = '';
-    const id = req.params.id;
-    const sql = "SELECT * FROM `logins` WHERE `id`='" + id + "'";
-    db.query(sql, function (err, result) {
-        if (err) {
-            console.error(err);
-            message = "An error occurred while fetching profile.";
-            res.render('profile.ejs', { data: [], message: message });
-        } else {
-            if (result.length <= 0)
-                message = "Profile not found!";
-            res.render('profile.ejs', { data: result, message: message });
-        }
-    });
+    console.log(req.session.profileData);
+    const result= req.session.profileData;
+    res.render('profile.ejs', { data : result, message: message });
+    
 });
-
-
-
 
 
 
@@ -135,7 +142,8 @@ app.post('/login', (req, res) => {
             const ac_id = result[0].ac_id;
             req.session.email = email;
             req.session.ac_id = ac_id;
-            res.redirect('/dashboard');
+            res.send("login success");
+            //res.redirect('/dashboard');
         }
     });
 });
@@ -180,9 +188,11 @@ app.get('/dashboard', (req, res) => {
     if (!ac_id) {
         res.redirect('/'); // Redirect to login if session email is not set
     } else {
-       
+        console.log(req.session.profileData);
+    const result= req.session.profileData;
+    res.render('dashboard', { data : result, email: req.session.email});
         
-        res.render('dashboard', { email: req.session.email });
+    
 
     }
 });
@@ -365,31 +375,29 @@ app.listen(port, () => {
 });
 
 // Handle 404 errors
-app.use((req, res, next) => {
-    res.render('404.ejs');
-});
+// app.use((req, res, next) => {
+//     res.render('404.ejs');
+// });
 
 app.get('/test', (req, res) => {
     res.render('test.ejs');
 });
-
-app.get('/fp/:id', (req, res) => {
-    const id = req.params.id;
-    const sql = "SELECT * FROM logins WHERE id='" + id + "'";
-    db.query(sql, function (err, result) {
+app.get('/fp', (req, res) => {
+    console.log(req.session.ac_id);
+    const sql = "SELECT * FROM logins WHERE ac_id = ?"; // Parameterized query to prevent SQL injection
+    db.query(sql, [req.session.ac_id], function (err, result) {
         if (err) {
             console.error(err);
-            // Handle the error, maybe send an error response
+
             res.status(500).send("An error occurred while fetching profile.");
+
         } else {
-            // Assuming result is an array containing fetched data
             if (result.length > 0) {
                 // Store the fetched data in a session variable
-                req.session.profileData = result[0]; // Assuming you only need the first row
-                console.log("came upto fp");
+                req.session.profileData = result; // Store the entire result array in session
+                console.log(req.session.profileData);
                 res.status(200).send("Data imported and stored in session variable successfully.");
             } else {
-                // Handle case where no data is found
                 res.status(404).send("No profile found for the provided ID.");
             }
         }

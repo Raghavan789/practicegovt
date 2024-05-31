@@ -169,7 +169,8 @@ app.post('/login', (req, res) => {
                     console.error(err);
                     // Handle error appropriately, maybe redirect to an error page
                 } else {
-                    res.send("imoprt data success fu';;;");
+                    
+                    res.redirect('/dashboard');
                     // Optionally, you can do something with the fetched profile data
                     // For example, you can redirect the user to the dashboard
                     // res.redirect('/dashboard');
@@ -248,9 +249,11 @@ app.post('/register', (req, res) => {
 
 // Route to handle complaint submission
 app.post('/submitComplaint', (req, res) => {
-    const { complaintType, name, aadharID, phoneNumber, complaintMessage, email } = req.body;
-    const insertQuery = 'INSERT INTO complaints (complaintType, name, aadharID, phoneNumber, complaintMessage, ac_id) VALUES (?, ?, ?, ?, ?, ?)';
-    db.query(insertQuery, [complaintType, name, aadharID, phoneNumber, complaintMessage, email], (err, result) => {
+    const a_id = req.session.ac_id;
+    const {email, complaintType, name, aadharID, phoneNumber, complaintMessage } = req.body;
+    console.log(req.body);
+    const insertQuery = 'INSERT INTO complaints (complaintType, name, aadharID, phoneNumber, complaintMessage, ac_id,email) VALUES (?, ?, ?, ?, ?, ?, ?)';
+    db.query(insertQuery, [complaintType, name, aadharID, phoneNumber, complaintMessage,a_id,email], (err, result) => {
         if (err) {
             throw err;
         }
